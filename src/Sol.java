@@ -3,6 +3,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.exp;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
+
+//http://people.sc.fsu.edu/~jburkardt/c_src/test_optimization/test_optimization.c
 /*class comp implements Comparator<? extends Osobnik>{
 
     @Override
@@ -11,53 +17,38 @@ import java.util.Random;
     }
 }*/
 
-class Osobnik{
-
-    public Osobnik(int w){
-        x= new Double[w];
-        wynik =0.0;
-    }
-    public Osobnik(Osobnik o){
-        x = new Double[o.x.length];
-        System.arraycopy(o.x,0,x,0,x.length);
-        wynik = o.wynik;
-    }
-    Double[] x;
-    Double wynik;
-
-}
 
 public class Sol {
+    Double tau = 1/ sqrt(size);
     Double mi = 0.0;
-    Double sigma = 0.51;
+    Double sigma = 0.1;
     Random random = new Random();
     int counter = 0;
     static int size =10;
-    /*public Double func(Double[] x){
-        int length = x.length;
-        Double sum = 0.0;
-        for (int i=0; i<length; i++){
-            sum+=x[i]*x[i];
-        }
-        return sum;
-    }*/
-    public void mutacja(Double[] x){
-        int length = x.length;
+    public int fcounter = 0;
+    Double[] progi = {1.0, 0.1,0.01};
+
+    public void mutacja(Osobnik osobnik){
+        int length = osobnik.x.length;
         for (int i=0; i<length; i++) {
-            x[i] = x[i] + mi + sigma * random.nextGaussian();
+            osobnik.sigma[i] = osobnik.sigma[i] * exp(tau * random.nextGaussian());
+
+            if (osobnik.sigma[i] < osobnik.epsilon ){
+                osobnik.sigma[i] = osobnik.epsilon;
+            }
+
+            osobnik.x[i] = osobnik.x[i] + osobnik.sigma[i] * random.nextGaussian();
+
         }
-    }
-
-    public Double prog(Double fx, Double fy, Double temp){
-        return Math.exp((fx - fy)/temp );
 
     }
+
     public Double f(Double[] x) {
         double sum1 = 0.0;
         double sum2 = 0.0;
 
         for (int i = 0 ; i < x.length ; i ++) {
-            sum1 += Math.pow(x[i], 2);
+            sum1 += pow(x[i], 2);
             sum2 += (Math.cos(2*Math.PI*x[i]));
 
         }
@@ -66,30 +57,49 @@ public class Sol {
                 - Math.exp(sum2 /((double )x.length)) + Math.exp(1.0);
     }
 
+    public Double rosenbrock( Double[] x){
+        fcounter++;
+        double f =0.0;
+        int i;
+        for ( i = 0; i < x.length; i++ )
+        {
+            f = f + pow( 1.0 - x[i], 2 );
+        }
+        for ( i = 0; i < x.length - 1; i++ ) {
+            f = f + pow(x[i + 1] - x[i], 2);
+        }
+        for( i =0; i<progi.length; i++){
+            if (f<progi[i]){
+                System.out.println("wartośc dla progu: "+ progi[i]+ " wynosi " +f + " dla iteracji " + fcounter);
+                progi[i] = Double.MIN_VALUE;
+            }
+        }
+        return f;
+    }
+
     public static void main(String[] args){
-        int i = 0;
-        //Double z= 0.0;
-       //Double sum = 0.0;
+        /*for (Double i= 0.0; i<100; i++){
+            Double[] x = {i,2*i};
+            System.out.println( rosenbrock(x));
+        }*/
+        /*Double[] x = {1.0,1.0,1.0,1.0,1.0};
+        System.out.println( rosenbrock(x));*/
         int pop = 10;
         List<Osobnik> P = new ArrayList<>();
-        Double[] y = new Double[size];
-        Double temp = 0.001;
         Random random = new Random();
         Sol sol = new Sol();
-        //Double x = -10.0 + 20.0 * random.nextDouble();
-        for(i = 0; i < pop; ++i) {
+        for(int i = 0; i < pop; ++i) {
             Osobnik os = new Osobnik(size);
-            //Double[] x = new Double[size];
             for (int k = 0; k < size; k++) {
-                os.x[k] = -10.0 + 20.0 * random.nextDouble();
-                //x[k] = 10.0;
+                os.x[k] = -5.0 + 10.0 * random.nextDouble();
+                os.sigma[k] =0.1;
             }
-            os.wynik = sol.f(os.x);
+            os.wynik = sol.rosenbrock(os.x);
             P.add(os);
         }
-        for(int j=0; j<100;j++) {
+        for(int j=0; j<10000;j++) {
             P.sort(new comp());
-            System.out.println(P.get(0).wynik);
+            //System.out.println(P.get(0).wynik);
             sol.counter = 0;
             List<Osobnik> P2 = new ArrayList<>();
             for(int l =0; l<3; l++) {
@@ -97,48 +107,36 @@ public class Sol {
                 Osobnik os = P.get(l);
 
                 for(int l2 =0; l2<5; l2++) {
-                    Osobnik o2 = new Osobnik(size);
-
-                    System.arraycopy(os.x, 0, o2.x, 0, os.x.length);
-                    sol.mutacja(o2.x);
-                    o2.wynik = sol.f(o2.x);
+                    Osobnik o2 = new Osobnik(os);
+                    sol.mutacja(o2);
+                    o2.wynik = sol.rosenbrock(o2.x);
                     P2.add(o2);
                 }
                 for (int k = 0; k < size; k++) {
                     os.x[k] = -10.0 + 20.0 * random.nextDouble();
                 }
-                //for ( temp =0.001 ; temp<1; temp+= 0.01) {
-               //i = 0;
-               //sum += z;
-               // z = 0.0;
-                //while (i < 100) {
-
-
-                    /*if (sol.f(os.x) > sol.f(y)) {
-                        System.arraycopy(y, 0, os.x, 0, os.x.length);
-                    }
-                    else {
-                        System.out.println("Prog" + sol.prog(sol.f(os.x), sol.f(y), temp));
-                        /*if (sol.prog(sol.f(x), sol.f(y), temp) > random.nextGaussian()) {
-                            System.arraycopy(y, 0, x, 0, x.length);
-                        }
-                    }*/
-                    //i++;
-               // }
-                //}
             }
-            P2.sort(new comp());
+            /*P2.sort(new comp());
             P.clear();
             for (int m = 0; m<pop; m++){
                 P.add(new Osobnik(P2.get(m)));
-            }
-           // System.out.println("Counter  = " + sol.counter);
-            for (Osobnik os : P){
-                System.out.println(sol.f(os.x));
+            }*/
+
+            P2.addAll(P);
+           // System.out.println("Rozmiar przed : " + P2.size());
+            P2.sort(new comp());
+            System.out.println("Najlepszy:" + P2.get(0).sigma[0]);
+            P.clear();
+            //System.out.println("rozmiar po ; " + P2.size());
+            for (int m = 0; m<pop; m++){
+                P.add(new Osobnik(P2.get(m)));
             }
 
-
+            /*for (Osobnik os : P){
+                System.out.println(sol.rosenbrock(os.x));
+            }*/
         }
-       // System.out.println(sum/100);
+        P.sort(new comp());
+        System.out.println("Najlepszy :" + P.get(0).wynik);
     }
 }
