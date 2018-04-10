@@ -19,6 +19,8 @@ public class Solution {
             //map.put(i,-10.0 + 20.0 * random.nextDouble());
             map.put(i,mi + sigma * random.nextGaussian());
         }
+
+
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("NMO");
         Set<Integer> keyset = map.keySet();
