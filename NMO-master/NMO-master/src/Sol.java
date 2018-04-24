@@ -76,12 +76,12 @@ public class Sol {
         for ( i = 0; i < x.length - 1; i++ ) {
             f = f + pow(x[i + 1] - x[i], 2);
         }
-        /*for( i =0; i<progi.length; i++){
+        for( i =0; i<progi.length; i++){
             if (f<progi[i]){
                 System.out.println("wartośc dla progu: "+ progi[i]+ " wynosi " +f + " dla iteracji " + fcounter);
                 progi[i] = Double.MIN_VALUE;
             }
-        }*/
+        }
         return f;
     }
 
@@ -120,7 +120,7 @@ public class Sol {
                         os.x[k] = -5.0 + 10.0 * random.nextDouble();
                         os.sigma[k] = 1.0;
                     }
-                    os.wynik = sol.rosenbrock(os.x);
+                    os.wynik = sol.rastrigin(os.x);
                     P.add(os);
                 }
 //                for (int j = 0; j < 10000; j++) {
@@ -134,7 +134,7 @@ public class Sol {
                         for (int l2 = 0; l2 < 5; l2++) {
                             Osobnik o2 = new Osobnik(P.get(l));
                             sol.mutacja(o2);
-                            o2.wynik = sol.rosenbrock(o2.x);
+                            o2.wynik = sol.rastrigin(o2.x);
                             P2.add(o2);
                         }
 //                        for (int k = 0; k < size; k++) {
@@ -176,7 +176,7 @@ public class Sol {
             row2+=2;*/
         }
         try {
-            FileOutputStream out = new FileOutputStream(new File("rosenbrock3.xls"));
+            FileOutputStream out = new FileOutputStream(new File("rastrigin.xls"));
             workbook.write(out);
             out.close();
         } catch (FileNotFoundException e) {

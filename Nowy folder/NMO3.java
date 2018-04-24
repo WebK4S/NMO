@@ -42,12 +42,11 @@ class NMO3 {
     }
 
     public Double prog(Double fx, Double fy, Double temp) {
-        double a = Math.exp((fx - fy) / temp);
-        return a;
+        return Math.exp((fx - fy) / temp);
 
     }
     //rosenbrock
-    /*public Double f(Double[] x) {
+    public Double f(Double[] x) {
         double f =0.0;
         int i;
         for ( i = 0; i < x.length; i++ )
@@ -58,29 +57,29 @@ class NMO3 {
             f = f + pow(x[i + 1] - x[i], 2);
         }
         return f;
-    }*/
+    }
     //rastrigin
-   public Double f(Double[] x) {
+   /* public Double f(Double[] x) {
         Double fitness = 10.0 * x.length;
         for (int i = 0 ; i<x.length; i++){
             fitness += Math.pow(x[i], 2.0) - 10.0 * Math.cos(2 * Math.PI * x[i]);
         }
         return fitness;
     }
-
+*/
     public static void main(String[] args) {
         int row1 = 0;
         int row2 = 1;
         HSSFWorkbook workbook = new HSSFWorkbook();
         int size = 1;
         for (int dimension = 5; dimension <= 35; dimension += 5) {
-            size = dimension;
             HSSFSheet sheet = workbook.createSheet("NMO" + size);
             Double[] wyniki = new Double[50];
             Map<Integer, Double> map = new TreeMap<Integer, Double>();
-            Double temp = 100.0;
+            Double temp = 0.01;
             Random random = new Random();
             NMO3 sol = new NMO3();
+            //Double x = -10.0 + 20.0 * random.nextDouble();
             Double[] x = new Double[size];
             Double[] y = new Double[size];
 
@@ -99,19 +98,15 @@ class NMO3 {
                     if (sol.f(x) > sol.f(y)) {
                         System.arraycopy(y, 0, x, 0, x.length);
                     } else {
-                        //System.out.println("Prog" + sol.prog(sol.f(x), sol.f(y), temp));
-                        double prog = sol.prog(sol.f(x), sol.f(y), temp);
-                        double rand = random.nextDouble();
-                        if ( prog > rand) {
+                        System.out.println("Prog" + sol.prog(sol.f(x), sol.f(y), temp));
+                        if (sol.prog(sol.f(x), sol.f(y), temp) > random.nextGaussian()) {
                             System.arraycopy(y, 0, x, 0, x.length);
-                            System.out.println("gorsze " + temp);
                         }
                     }
-                    temp *= 0.99;
                     i++;
                 }
                 // System.out.println("Counter  = " + sol.counter);
-                //System.out.println(sol.f(x));
+                System.out.println(sol.f(x));
                 wyniki[j] = sol.f(x);
 
             }
@@ -120,7 +115,7 @@ class NMO3 {
                 map.put(k, wyniki[k]);
             }
             //System.out.println(sum);
-
+            size = dimension;
             Set<Integer> keyset = map.keySet();
             int rownum = 0;
             for (Integer key : keyset) {
@@ -132,7 +127,7 @@ class NMO3 {
             }
         }
         try {
-            FileOutputStream out = new FileOutputStream(new File("rastriginSAtemp.xls"));
+            FileOutputStream out = new FileOutputStream(new File("E:\\Programowanie\\Projekty\\Java\\NMO\\rosenbrockSA.xls"));
             workbook.write(out);
             out.close();
         } catch (FileNotFoundException e) {

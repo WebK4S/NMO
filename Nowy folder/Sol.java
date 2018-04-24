@@ -23,29 +23,22 @@ public class Sol {
     Double sigma = 0.1;
     Random random = new Random();
     int counter = 0;
-    static int size = 1;
+    static int size =1;
     public int fcounter = 0;
     Double[] progi = {1.0, 0.1,0.01};
-    public static int pop = 20;
-    public static int dimension = 5;
+    public static int pop = 10;
 
 
     public void mutacja(Osobnik osobnik){
         int length = osobnik.x.length;
         for (int i=0; i<length; i++) {
-            osobnik.sigma[i] = osobnik.sigma[i] * exp(tau * random.nextGaussian());
+            //osobnik.sigma[i] = osobnik.sigma[i] * exp(tau * random.nextGaussian());
 
-            if (osobnik.sigma[i] < osobnik.epsilon ){
-                if(random.nextBoolean()){
-                    osobnik.sigma[i] = 1.0;
-                } else {
-                    osobnik.sigma[i] = osobnik.epsilon;
-                }
-            }
+           /* if (osobnik.sigma[i] < osobnik.epsilon ){
+                osobnik.sigma[i] = osobnik.epsilon;
+            }*/
 
-            osobnik.x[i] = osobnik.x[i] + osobnik.sigma[i] * random.nextGaussian();
-
-//            osobnik.x[i] = osobnik.x[i] + sigma * random.nextGaussian();
+            osobnik.x[i] = osobnik.x[i] + sigma * random.nextGaussian();
 
         }
 
@@ -76,18 +69,16 @@ public class Sol {
         for ( i = 0; i < x.length - 1; i++ ) {
             f = f + pow(x[i + 1] - x[i], 2);
         }
-        /*for( i =0; i<progi.length; i++){
+        for( i =0; i<progi.length; i++){
             if (f<progi[i]){
                 System.out.println("wartośc dla progu: "+ progi[i]+ " wynosi " +f + " dla iteracji " + fcounter);
                 progi[i] = Double.MIN_VALUE;
             }
-        }*/
+        }
         return f;
     }
 
     public Double rastrigin( Double[] x){
-        fcounter++;
-
         Double fitness = 10.0 * x.length;
         for (int i = 0 ; i<x.length; i++){
             fitness += Math.pow(x[i], 2.0) - 10.0 * Math.cos(2 * Math.PI * x[i]);
@@ -95,18 +86,12 @@ public class Sol {
         return fitness;
     }
 
-    public boolean stop(){
-        return fcounter >= 2000 * dimension;
-    }
-
     public static void main(String[] args){
         int row1=0;
         int row2=1;
         HSSFWorkbook workbook = new HSSFWorkbook();
 
-        for(dimension = 5; dimension<=35; dimension+=5) {
-//        int dimension = 5;
-            size = dimension;
+        for(int dimension = 5; dimension<=35; dimension+=5) {
             HSSFSheet sheet = workbook.createSheet("NMO"+size);
             Double[] wyniki = new Double[50];
             Map<Integer,Double> map = new TreeMap<Integer,Double>();
@@ -117,51 +102,49 @@ public class Sol {
                 for (int i = 0; i < pop; ++i) {
                     Osobnik os = new Osobnik(size);
                     for (int k = 0; k < size; k++) {
-                        os.x[k] = -5.0 + 10.0 * random.nextDouble();
-                        os.sigma[k] = 1.0;
+                        os.x[k] = -5.12 + 10.24 * random.nextDouble();
+                        //os.sigma[k] =0.1;
                     }
-                    os.wynik = sol.rosenbrock(os.x);
+                    os.wynik = sol.rastrigin(os.x);
                     P.add(os);
                 }
-//                for (int j = 0; j < 10000; j++) {
-                while(!sol.stop()){
+                for (int j = 0; j < 10000; j++) {
                     P.sort(new comp());
                     sol.counter = 0;
                     List<Osobnik> P2 = new ArrayList<>();
-                    for (int l = 0; l < 5; l++) {
-//                        Osobnik os = P.get(l);
+                    for (int l = 0; l < 3; l++) {
+
+                        Osobnik os = P.get(l);
 
                         for (int l2 = 0; l2 < 5; l2++) {
-                            Osobnik o2 = new Osobnik(P.get(l));
+                            Osobnik o2 = new Osobnik(os);
                             sol.mutacja(o2);
-                            o2.wynik = sol.rosenbrock(o2.x);
+                            o2.wynik = sol.rastrigin(o2.x);
                             P2.add(o2);
                         }
-//                        for (int k = 0; k < size; k++) {
-//                            os.x[k] = -5.0 + 10.0 * random.nextDouble();
-//                        }
+                        for (int k = 0; k < size; k++) {
+                            os.x[k] = -5.12 + 10.24 * random.nextDouble();
+                        }
                     }
 
-//                    P2.addAll(P);
-                    P2.add(Collections.min(P, new comp()));
+                    P2.addAll(P);
                     P2.sort(new comp());
                     //System.out.println("Najlepszy:" + P2.get(0).sigma[0]);
                     P.clear();
                     for (int m = 0; m < pop; m++) {
                         P.add(new Osobnik(P2.get(m)));
                     }
-//                    System.out.println("Najlepszy : " + Collections.min(P, new comp()).wynik);
                 }
-//                P.sort(new comp());
-//                System.out.println("Najlepszy :" + P.get(0).wynik);
-//                wyniki[s] = P.get(0).wynik;
-                wyniki[s] = Collections.min(P, new comp()).wynik;
+                P.sort(new comp());
+                System.out.println("Najlepszy :" + P.get(0).wynik);
+                wyniki[s] = P.get(0).wynik;
             }
-            System.out.println(dimension);
             for (Integer i = 0; i < 50; i++) {
                 //map.put(i,-10.0 + 20.0 * random.nextDouble());
                 map.put(i, wyniki[i]);
             }
+
+            size = dimension;
             Set<Integer> keyset = map.keySet();
             int rownum = 0;
             for (Integer key : keyset){
@@ -176,7 +159,7 @@ public class Sol {
             row2+=2;*/
         }
         try {
-            FileOutputStream out = new FileOutputStream(new File("rosenbrock3.xls"));
+            FileOutputStream out = new FileOutputStream(new File("E:\\Programowanie\\Projekty\\Java\\NMO\\rastrigin.xls"));
             workbook.write(out);
             out.close();
         } catch (FileNotFoundException e) {
