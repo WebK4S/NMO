@@ -142,3 +142,21 @@ class NMO3 {
         }
     }
 }
+
+
+
+/*
+* Spojny kod źródłowy dla wszystkich algorytmow
+*
+* Wyniki obrobione w excelu 5 wymiarów rastrigina SA vs 5 wymiarów rastrigina ewolucyjny
+*
+* Opisanie algorytmów, dwa rozdziały , wszystkie parametry, rozmiar populacji sigma itd.
+*
+* Dwa opisy benchmarków rastrigin rosenbrock, + dziedzina dla obydwu, wykresy
+*
+* Tabelka z podpisem co jest w tabelce :) np: tabela przedstawia wyniki dla : ...
+*
+* Wnioski ze dwa zdania itp 
+*
+*
+* */
